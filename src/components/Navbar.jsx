@@ -1,7 +1,20 @@
-import { Link } from "@heroui/react";
+"use client"
+import { authClient } from "@/lib/auth-client";
+import { Avatar, Button, Link } from "@heroui/react";
 import Image from "next/image";
 
 const Navbar = () => {
+    const {
+        data: session,
+
+    } = authClient.useSession()
+
+    const user = session?.user;
+    const handleSignUp = async () => {
+        await authClient.signOut();
+    };
+
+
     return (
         <nav className="bg-white shadow-md py-4">
             <div className="container mx-auto px-4 flex justify-between items-center">
@@ -19,39 +32,31 @@ const Navbar = () => {
                     <li><Link href={"/my-tutors"} className="no-underline hover:text-blue-700">My Tutors</Link></li>
                     <li><Link href={"/my-booked-sessions"} className="no-underline hover:text-blue-700">My Booked Sessions</Link></li>
                 </ul>
-                {/* 
-               
-                {/* Right: Login, Signup, and Profile Dropdown */}
-                <div className="flex items-center gap-4">
-                    <Link href={"/login"} className="text-blue-600 font-semibold no-underline ">Login</Link>
-                    <Link href={"/register"} className="bg-blue-600 text-white px-4 py-2 rounded-lg no-underline">Sign Up</Link>
 
-                    {/* Profile Dropdown */}
-                    <div className="relative group">
-                        {/* Profile Image */}
-                        <Image
-                            src="/assets/profile.png"
-                            alt="Profile"
-                            width={40}
-                            height={40}
-                            className="w-10 h-10 rounded-full cursor-pointer border border-gray-300"
-                        />
 
-                        {/* Dropdown Menu */}
-                        <div className="absolute right-0 mt-2 w-40 bg-white border rounded-lg shadow-lg hidden group-hover:block z-50">
-                            <ul className="py-2 text-sm text-gray-700">
-                                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                                    <Link href={"/profile"} className={"no-underline"}>Profile Link</Link>
-                                </li>
-                                <li className="px-4 py-2 hover:bg-red-50 text-red-600 cursor-pointer">
-                                    Logout
-                                </li>
-                            </ul>
+                {
+                    user ? <>
+                        <li>
+                            <Avatar>
+                                <Avatar.Image referrerPolicy="no-referer" alt="John Doe" src={user?.image} />
+                                <Avatar.Fallback>{user.name.charAt(0)}</Avatar.Fallback>
+                            </Avatar>
+                        </li>
+                        <li>
+                            <Button onClick={handleSignUp} variant="danger" className={'rounded-none'}>Logout</Button>
+                        </li>
+                    </> :
+                        <div className="flex items-center gap-4">
+                            <Link href={"/login"} className="text-blue-600 font-semibold no-underline ">Login</Link>
+                            <Link href={"/signup"} className="bg-blue-600 text-white px-4 py-2 rounded-lg no-underline">Sign Up</Link>
                         </div>
-                    </div>
-                </div>
+
+                }
 
             </div>
+
+
+
         </nav>
     );
 };
