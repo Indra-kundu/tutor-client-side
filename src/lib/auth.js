@@ -13,7 +13,7 @@ export const auth = betterAuth({
         enabled: true,
     },
     socialProviders: {
-        gitlab: {
+        google: {
             clientId: process.env.GOOGLE_CLIENTID,
             clientSecret: process.env.GOOGLE_SECRET
 

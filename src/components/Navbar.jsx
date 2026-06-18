@@ -34,24 +34,26 @@ const Navbar = () => {
                 </ul>
 
 
-                {
-                    user ? <>
-                        <li>
-                            <Avatar>
-                                <Avatar.Image referrerPolicy="no-referer" alt="John Doe" src={user?.image} />
-                                <Avatar.Fallback>{user.name.charAt(0)}</Avatar.Fallback>
-                            </Avatar>
-                        </li>
-                        <li>
-                            <Button onClick={handleSignUp} variant="danger" className={'rounded-none'}>Logout</Button>
-                        </li>
-                    </> :
-                        <div className="flex items-center gap-4">
-                            <Link href={"/login"} className="text-blue-600 font-semibold no-underline ">Login</Link>
-                            <Link href={"/signup"} className="bg-blue-600 text-white px-4 py-2 rounded-lg no-underline">Sign Up</Link>
-                        </div>
+                <div className="flex items-center gap-4 list-none">
+                    {
+                        user ? <>
+                            <li>
+                                <Avatar>
+                                    <Avatar.Image referrerPolicy="no-referrer" alt="John Doe" src={user?.image} />
+                                    <Avatar.Fallback>{user.name.charAt(0)}</Avatar.Fallback>
+                                </Avatar>
+                            </li>
+                            <li>
+                                <Button onClick={handleSignUp} variant="danger" className={'rounded-none'}>Logout</Button>
+                            </li>
+                        </> :
+                            <div className="flex items-center gap-4">
+                                <Link href={"/login"} className="text-blue-600 font-semibold no-underline ">Login</Link>
+                                <Link href={"/signup"} className="bg-blue-600 text-white px-4 py-2 rounded-lg no-underline">Sign Up</Link>
+                            </div>
 
-                }
+                    }
+                </div>
 
             </div>
 
