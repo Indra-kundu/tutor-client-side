@@ -5,7 +5,7 @@ import React from 'react';
 import { MapPin, BookOpen, Clock, Users, GraduationCap, Award } from 'lucide-react';
 
 const TutorCard = ({ tutor }) => {
-    const { _id, name, photo, category, fee, location, mode, availableDays, totalSlot, institution, experience } = tutor;
+    const { _id, name, photo, category, fee, location, mode, availableDays, totalSlot, institution, experience, date } = tutor;
 
     return (
         <Card className="w-full p-5 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 rounded-3xl">
@@ -39,7 +39,18 @@ const TutorCard = ({ tutor }) => {
                     <p className="flex items-center gap-2"><Award size={16} className="text-yellow-500" /> {experience}</p>
                     <p className="flex items-center gap-2"><Clock size={16} className="text-green-500" /> {availableDays}</p>
                 </div>
-
+                <div className="flex items-center gap-2 my-3 text-blue-700 bg-blue-50 px-3 py-1 rounded-full w-fit">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} stroke="currentColor" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span className="text-sm font-semibold">
+                        {new Date(date).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        })}
+                    </span>
+                </div>
                 <div className="flex justify-between items-center pt-2 border-t border-gray-100">
                     <span className="text-2xl font-bold text-gray-800">${fee}<span className="text-sm font-normal text-gray-500">/hr</span></span>
                     <span className="flex items-center gap-1 bg-gray-100 px-3 py-1 rounded-full text-xs font-bold text-gray-700">
@@ -47,6 +58,7 @@ const TutorCard = ({ tutor }) => {
                     </span>
                 </div>
             </div>
+
 
             {/* Footer: Book Session Button */}
             <div className="mt-6">
