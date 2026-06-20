@@ -15,6 +15,7 @@ import {
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import { Google_Sans, Google_Sans_Code } from "next/font/google";
+import Link from "next/link";
 
 export default function SignInPage() {
 
@@ -119,8 +120,19 @@ export default function SignInPage() {
                 </div>
             </Form>
             <p className="text-center">Or</p>
-            <Button onClick={handleGoogleSignIn} className={'w-full'}><FaGoogle />Sign In With Google
+            <Button onClick={handleGoogleSignIn} className={'w-full'}>
+                <FaGoogle /> Sign In With Google
             </Button>
+
+            {/* এখানে নতুন সাইন আপ অপশনটি যোগ করা হয়েছে */}
+            <div className="text-center mt-4">
+                <p className="text-sm text-gray-600">
+                    Dont have an account?{" "}
+                    <Link href="/signup" className="text-blue-600 font-semibold hover:underline">
+                        Sign Up
+                    </Link>
+                </p>
+            </div>
 
         </Card>
     );

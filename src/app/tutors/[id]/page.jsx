@@ -49,36 +49,103 @@ const TutorDetails = ({ params }) => {
         mode, availableDays, totalSlot, institution, experience, date
     } = tutor;
 
+    // const handleBooking = async () => {
+    //     const bookingData = {
+    //         userId: user?.id,
+    //         userImage: user?.image,
+    //         userName: user?.name,
+    //         userEmail: user?.email,
+    //         tutorId: _id,
+    //         name,
+    //         fee,
+    //         photo,
+    //         location,
+
+    //         departureDate: new Date(departureDate)
+    //     }
+
+    //     const { data: tokenData } = await authClient.token()
+
+    //     const res = await fetch('http://localhost:5000/booking', {
+    //         method: "POST",
+    //         headers: {
+    //             'content-type': 'application/json',
+    //             authorization: `Bearer ${tokenData?.token}`
+
+    //         },
+    //         body: JSON.stringify(bookingData),
+    //     })
+
+    //     const data = await res.json();
+    //     // toast.success("You booked successfully!")
+
+    // }
+
     const handleBooking = async () => {
+        // tutor-er fixed date
+        const tutorFixedDate = new Date(date); // 'date' hocche tutor object er property
+        tutorFixedDate.setHours(0, 0, 0, 0);
+
+        // user-er select kora date
+        const selectedDate = new Date(departureDate);
+        selectedDate.setHours(0, 0, 0, 0);
+
+        // ১. Validation: Tutor-er date-er ager date hole error dekhabe
+        if (selectedDate < tutorFixedDate) {
+            alert("Error: You cannot book before the tutor's fixed date!");
+            return; // Booking process theme jabe
+        }
+
+        // ২. Booking data prepare kora
         const bookingData = {
             userId: user?.id,
             userImage: user?.image,
             userName: user?.name,
+            userEmail: user?.email,
+            phoneNumber: phoneNumber,
             tutorId: _id,
             name,
             fee,
             photo,
             location,
-            departureDate: new Date(departureDate)
+            departureDate: selectedDate,
+            status: "Pending"
+        };
+
+        const { data: tokenData } = await authClient.token();
+
+        try {
+            const res = await fetch('http://localhost:5000/booking', {
+                method: "POST",
+                headers: {
+                    'content-type': 'application/json',
+                    authorization: `Bearer ${tokenData?.token}`
+                },
+                body: JSON.stringify(bookingData),
+            });
+
+            // if (res.ok) {
+            //     alert("Booking successful!");
+            //     setIsOpen(false);
+            // } else {
+            //     const data = await res.json();
+            //     alert(data.message || "Failed to book session.");
+            //     setIsOpen(false);
+
+            // }
+            if (res.ok) {
+                setIsOpen(false); // আগে মডাল ক্লোজ করুন
+                setTimeout(() => alert("Booking successful!"), 100);
+                window.location.reload(); // এরপর অ্যালার্ট দিন
+            } else {
+                const data = await res.json();
+                alert(data.message || "Failed to book session.");
+            }
+        } catch (error) {
+            console.error("Booking error:", error);
+            alert("An error occurred while booking.");
         }
-
-        const { data: tokenData } = await authClient.token()
-
-        const res = await fetch('http://localhost:5000/booking', {
-            method: "POST",
-            headers: {
-                'content-type': 'application/json',
-                authorization: `Bearer ${tokenData?.token}`
-            },
-            body: JSON.stringify(bookingData),
-        })
-
-        const data = await res.json();
-        toast.success("You booked successfully!")
-
-    }
-
-
+    };
     const handleBookClick = () => {
         if (!session) {
             alert("Please login first to book a session.");
@@ -86,6 +153,14 @@ const TutorDetails = ({ params }) => {
         }
         if (totalSlot <= 0) {
             alert("No available slots left.");
+            return;
+        }
+
+        const today = new Date().setHours(0, 0, 0, 0);
+        const tutorSessionDate = new Date(date).setHours(0, 0, 0, 0);
+
+        if (tutorSessionDate > today) {
+            alert("Booking is not available yet for this tutor");
             return;
         }
         setIsOpen(true);
@@ -215,18 +290,24 @@ const TutorDetails = ({ params }) => {
                                             readOnly
                                         />
 
-                                        <Input
+                                        {/* <Input
                                             label="Phone Number"
                                             placeholder="Enter your phone number"
                                             type="tel"
                                             onChange={setPhoneNumber}
+                                        /> */}
+                                        <Input
+                                            label="Phone Number"
+                                            placeholder="Enter your phone number"
+                                            type="tel"
+                                            value={phoneNumber} // ভ্যালু সেট করুন
+                                            onChange={(e) => setPhoneNumber(e.target.value)} // এভাবে ইভেন্ট হ্যান্ডেল করুন
                                         />
                                         <Input
                                             label="Departure Date"
-                                            placeholder="Enter Date"
+                                            // placeholder="Enter Date"
                                             type="date"
-
-                                            value={departureDate}
+                                            min={new Date(date).toISOString().split("T")[0]}
                                             onChange={(e) => setDepartureDate(e.target.value)}
                                         />
 
