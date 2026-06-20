@@ -1,3 +1,4 @@
+
 "use client";
 import { useEffect, useState } from "react";
 import { authClient } from "@/lib/auth-client";
@@ -5,7 +6,8 @@ import { Button, Spinner } from "@heroui/react";
 import toast from "react-hot-toast";
 import UpdateModal from "@/components/UpdateModal";
 import Image from "next/image";
-// ঠিক ইমপোর্টের নিচেই এই হুকটি লিখে দিন
+
+// হুকটি এখানে রাখুন
 const useDisclosure = () => {
     const [isOpen, setIsOpen] = useState(false);
     const onOpen = () => setIsOpen(true);
@@ -14,37 +16,66 @@ const useDisclosure = () => {
 };
 
 const MyTutorsPage = () => {
+    // ১. সব স্টেট এবং হুক এখানে ডিক্লেয়ার করুন
     const { data: session, isPending } = authClient.useSession();
     const [tutors, setTutors] = useState([]);
-    const { isOpen, onOpen, onOpenChange } = useDisclosure();
+    const [token, setToken] = useState(null);
+    const [loading, setLoading] = useState(true);
     const [editingTutor, setEditingTutor] = useState(null);
+    const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
+    // ২. টোকেন ফেচ করা
     useEffect(() => {
-        if (session?.user?.email) {
-            fetch(`http://localhost:5000/my-tutors/${session.user.email}`)
-                .then(res => res.json())
-                .then(data => setTutors(data))
-                .catch(err => toast.error("Failed to load tutors"));
+        const getToken = async () => {
+            const t = await authClient.getToken();
+            setToken(t);
+            setLoading(false);
+        };
+        getToken();
+    }, []);
+
+    // ৩. ডেটা ফেচ করা (টোকেন পাওয়ার পর)
+    useEffect(() => {
+        if (!loading && session?.user?.email && token) {
+            fetch(`http://localhost:5000/my-tutors/${session.user.email}`, {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                },
+            })
+                .then(res => {
+                    if (!res.ok) throw new Error("Unauthorized");
+                    return res.json();
+                })
+                .then(data => setTutors(Array.isArray(data) ? data : []))
+                .catch(err => {
+                    console.error("Fetch Error:", err);
+                    toast.error("You are not authorized to view this.");
+                });
         }
-    }, [session?.user?.email]);
+    }, [session?.user?.email, token, loading]);
 
+    // ৪. ডিলিট লজিক
     const handleDelete = async (id) => {
-        if (!confirm("Are you sure you want to delete this tutor?")) return;
-
-        const res = await fetch(`http://localhost:5000/delete-tutor/${id}`, { method: 'DELETE' });
+        if (!confirm("Are you sure?")) return;
+        const res = await fetch(`http://localhost:5000/delete-tutor/${id}`, {
+            method: 'DELETE',
+            headers: { "Authorization": `Bearer ${token}` }
+        });
         if (res.ok) {
             setTutors(tutors.filter(t => t._id !== id));
-            toast.success("Tutor deleted successfully");
+            toast.success("Deleted successfully");
         } else {
             toast.error("Failed to delete");
         }
     };
+
     const handleEditClick = (tutor) => {
         setEditingTutor(tutor);
-        onOpen(); // মডাল ওপেন হবে
+        onOpen();
     };
 
-    if (isPending) return <div className="flex justify-center p-10"><Spinner /></div>;
+    if (isPending || loading) return <div className="flex justify-center p-10"><Spinner /></div>;
+
     return (
         <div className="max-w-7xl mx-auto p-6">
             <h1 className="text-3xl font-bold mb-8 text-gray-800">My Tutors</h1>

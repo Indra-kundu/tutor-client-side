@@ -21,9 +21,15 @@ const AddTutorPage = () => {
             totalSlot: parseInt(data.totalSlot), // স্লটটি অবশ্যই নাম্বার হিসেবে পাঠাবেন
             fee: parseInt(data.fee) // ফি-ও নাম্বার হিসেবে পাঠানো ভালো
         };
+
+        const { data: tokenData } = await authClient.token()
         const res = await fetch('http://localhost:5000/tutor', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                authorization: `Bearer ${tokenData?.token}`
+
+            },
             body: JSON.stringify(tutorData) // নতুন অবজেক্টটি পাঠান
         });
 

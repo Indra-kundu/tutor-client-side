@@ -21,22 +21,34 @@ const TutorDetails = ({ params }) => {
 
     const { data: session, } = authClient.useSession()
     const user = session?.user;
-    // console.log(user)
 
     const { id } = use(params);
     const [tutor, setTutor] = useState(null);
     const [isOpen, setIsOpen] = useState(false);
     const [phoneNumber, setPhoneNumber] = useState("");
     const [departureDate, setDepartureDate] = useState("");
-
-
+    const [tokenData, setTokenData] = useState(null); // টোকেন রাখার জন্য স্টেট
 
     useEffect(() => {
-        fetch(`http://localhost:5000/tutor/${id}`)
-            .then(res => res.json())
-            .then(data => setTutor(data))
-            .catch(err => console.error("Error fetching tutor data:", err));
-    }, [id]);
+        const getToken = async () => {
+            const { data } = await authClient.token();
+            setTokenData(data);
+        };
+        getToken();
+    }, []);
+
+    useEffect(() => {
+        if (tokenData?.token && id) {
+            fetch(`http://localhost:5000/tutor/${id}`, {
+                headers: {
+                    authorization: `Bearer ${tokenData.token}`
+                },
+            })
+                .then(res => res.json())
+                .then(data => setTutor(data))
+                .catch(err => console.error("Error fetching tutor data:", err));
+        }
+    }, [id, tokenData]);
 
     if (!tutor) return (
         <div className="flex justify-center items-center py-20 text-xl font-semibold text-gray-600">
@@ -49,54 +61,20 @@ const TutorDetails = ({ params }) => {
         mode, availableDays, totalSlot, institution, experience, date
     } = tutor;
 
-    // const handleBooking = async () => {
-    //     const bookingData = {
-    //         userId: user?.id,
-    //         userImage: user?.image,
-    //         userName: user?.name,
-    //         userEmail: user?.email,
-    //         tutorId: _id,
-    //         name,
-    //         fee,
-    //         photo,
-    //         location,
 
-    //         departureDate: new Date(departureDate)
-    //     }
-
-    //     const { data: tokenData } = await authClient.token()
-
-    //     const res = await fetch('http://localhost:5000/booking', {
-    //         method: "POST",
-    //         headers: {
-    //             'content-type': 'application/json',
-    //             authorization: `Bearer ${tokenData?.token}`
-
-    //         },
-    //         body: JSON.stringify(bookingData),
-    //     })
-
-    //     const data = await res.json();
-    //     // toast.success("You booked successfully!")
-
-    // }
 
     const handleBooking = async () => {
-        // tutor-er fixed date
         const tutorFixedDate = new Date(date); // 'date' hocche tutor object er property
         tutorFixedDate.setHours(0, 0, 0, 0);
 
-        // user-er select kora date
         const selectedDate = new Date(departureDate);
         selectedDate.setHours(0, 0, 0, 0);
 
-        // ১. Validation: Tutor-er date-er ager date hole error dekhabe
         if (selectedDate < tutorFixedDate) {
             alert("Error: You cannot book before the tutor's fixed date!");
-            return; // Booking process theme jabe
+            return;
         }
 
-        // ২. Booking data prepare kora
         const bookingData = {
             userId: user?.id,
             userImage: user?.image,
@@ -124,15 +102,7 @@ const TutorDetails = ({ params }) => {
                 body: JSON.stringify(bookingData),
             });
 
-            // if (res.ok) {
-            //     alert("Booking successful!");
-            //     setIsOpen(false);
-            // } else {
-            //     const data = await res.json();
-            //     alert(data.message || "Failed to book session.");
-            //     setIsOpen(false);
 
-            // }
             if (res.ok) {
                 setIsOpen(false); // আগে মডাল ক্লোজ করুন
                 setTimeout(() => alert("Booking successful!"), 100);
@@ -183,33 +153,42 @@ const TutorDetails = ({ params }) => {
             }),
         },
     ];
-    // console.log(isOpen)
 
     return (
         <div className="max-w-6xl mx-auto py-16 px-6">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 w-full">
 
-                {/* বাম পাশ: ইমেজ এবং এক্সপেরিয়েন্স */}
+
+
                 <div className="lg:col-span-5 relative">
                     <div className="sticky top-20">
-                        <div className="relative rounded-3xl overflow-hidden shadow-2xl">
-                            <Image
-                                src={photo}
-                                alt={name}
-                                width={500}
-                                height={600}
-                                className="w-full h-[500px] object-cover"
-                            />
-                        </div>
+
+                        {photo && photo.trim() !== "" ? (
+                            <div className="relative rounded-3xl overflow-hidden shadow-2xl">
+                                <Image
+                                    src={photo}
+                                    alt={name || "Tutor"}
+                                    width={500}
+                                    height={600}
+                                    className="w-full h-[500px] object-cover"
+                                />
+                            </div>
+                        ) : (
+                            <div className="w-full h-[500px] bg-gray-200 rounded-3xl flex items-center justify-center text-gray-500 font-medium">
+                                No Image Available
+                            </div>
+                        )}
+
+                        {/* টিচিং এক্সপেরিয়েন্স সেকশন (এটি sticky ডিভের ভেতরেই থাকবে) */}
                         <div className="mt-6 p-6 bg-white rounded-2xl shadow-sm border border-gray-100">
                             <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
                                 <Award size={20} className="text-yellow-500" /> Teaching Experience
                             </h3>
                             <p className="text-gray-600 leading-relaxed">{experience}</p>
                         </div>
-                    </div>
-                </div>
 
+                    </div> {/* sticky ডিভ শেষ */}
+                </div>
                 {/* ডান পাশ: ইনফরমেশন কার্ড ও বাটন */}
                 <div className="lg:col-span-7 space-y-8">
                     <div>
@@ -307,7 +286,8 @@ const TutorDetails = ({ params }) => {
                                             label="Departure Date"
                                             // placeholder="Enter Date"
                                             type="date"
-                                            min={new Date(date).toISOString().split("T")[0]}
+                                            // min={new Date(date).toISOString().split("T")[0]}
+                                            min={date && !isNaN(new Date(date)) ? new Date(date).toISOString().split("T")[0] : ""}
                                             onChange={(e) => setDepartureDate(e.target.value)}
                                         />
 
