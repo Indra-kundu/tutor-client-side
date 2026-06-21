@@ -15,7 +15,7 @@ const UpdateModal = ({ isOpen, onOpenChange, tutor, setTutors, tutors }) => {
             image: form.image.value
         };
 
-        const res = await fetch(`http://localhost:5000/update-tutor/${tutor._id}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/update-tutor/${tutor._id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(updatedData)

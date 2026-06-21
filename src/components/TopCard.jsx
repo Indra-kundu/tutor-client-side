@@ -3,7 +3,7 @@ import TutorCard from '@/components/TutorCard';
 
 const TopCard = async () => {
     // ডেটা ফেচ করছি
-    const res = await fetch('http://localhost:5000/tutors-top', {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/tutors-top`, {
         cache: 'no-store' // রিয়েল-টাইম আপডেটের জন্য এটি জরুরি
     });
     const topTutors = await res.json();
@@ -14,7 +14,6 @@ const TopCard = async () => {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {topTutors.map((tutor) => (
-                    // এখানে আপনার আগের তৈরি করা TutorCard কম্পোনেন্টটি ব্যবহার করুন
                     <TutorCard key={tutor._id} tutor={tutor}></TutorCard>
                 ))}
             </div>

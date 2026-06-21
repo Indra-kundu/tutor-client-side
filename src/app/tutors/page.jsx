@@ -2,8 +2,15 @@ import TutorCard from '@/components/TutorCard';
 import React from 'react';
 
 const TutorPage = async () => {
-    const res = await fetch('http://localhost:5000/tutor')
-    const tutors = await res.json()
+
+    const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/tutor`, {
+        cache: 'no-store'
+    });
+    const data = await res.json();
+
+    console.log("Data from API:", data);
+
+    const tutors = Array.isArray(data) ? data : (data.tutors || []);
 
     return (
         <div className='max-w-7xl mx-auto mt-8'>

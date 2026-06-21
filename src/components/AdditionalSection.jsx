@@ -1,4 +1,3 @@
-// src/components/AdditionalSection.jsx
 const AdditionalSection = () => {
     return (
         <section className="py-20 bg-gray-50">

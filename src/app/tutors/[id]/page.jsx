@@ -39,7 +39,7 @@ const TutorDetails = ({ params }) => {
 
     useEffect(() => {
         if (tokenData?.token && id) {
-            fetch(`http://localhost:5000/tutor/${id}`, {
+            fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/tutor/${id}`, {
                 headers: {
                     authorization: `Bearer ${tokenData.token}`
                 },
@@ -93,7 +93,7 @@ const TutorDetails = ({ params }) => {
         const { data: tokenData } = await authClient.token();
 
         try {
-            const res = await fetch('http://localhost:5000/booking', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/booking`, {
                 method: "POST",
                 headers: {
                     'content-type': 'application/json',
@@ -116,6 +116,8 @@ const TutorDetails = ({ params }) => {
             alert("An error occurred while booking.");
         }
     };
+
+
     const handleBookClick = () => {
         if (!session) {
             alert("Please login first to book a session.");

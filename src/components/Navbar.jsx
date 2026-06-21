@@ -20,8 +20,12 @@ const Navbar = () => {
             <div className="container mx-auto px-4 flex justify-between items-center">
 
                 {/* Left: Logo */}
-                <div className="text-2xl font-bold text-blue-700">
-                    <Link href={"/"} className="no-underline">EduBridge</Link>
+                <div className="flex items-center gap-2 cursor-pointer">
+                    {/* এখানে একটি ছোট আইকন ব্যবহার করুন */}
+                    <div className="bg-blue-600 text-white p-2 rounded-lg font-bold">EB</div>
+                    <span className="text-2xl font-extrabold tracking-tighter text-gray-900">
+                        Edu<span className="text-blue-600">Bridge</span>
+                    </span>
                 </div>
 
                 {/* Middle: Links */}

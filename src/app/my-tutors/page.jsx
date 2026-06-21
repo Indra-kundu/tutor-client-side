@@ -27,17 +27,18 @@ const MyTutorsPage = () => {
     // ২. টোকেন ফেচ করা
     useEffect(() => {
         const getToken = async () => {
-            const t = await authClient.getToken();
-            setToken(t);
+            const { data: tokenData } = await authClient.token();
+            setToken(tokenData?.token);
             setLoading(false);
         };
         getToken();
     }, []);
 
+
     // ৩. ডেটা ফেচ করা (টোকেন পাওয়ার পর)
     useEffect(() => {
         if (!loading && session?.user?.email && token) {
-            fetch(`http://localhost:5000/my-tutors/${session.user.email}`, {
+            fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/my-tutors/${session.user.email}`, {
                 headers: {
                     "Authorization": `Bearer ${token}`
                 },
@@ -57,7 +58,7 @@ const MyTutorsPage = () => {
     // ৪. ডিলিট লজিক
     const handleDelete = async (id) => {
         if (!confirm("Are you sure?")) return;
-        const res = await fetch(`http://localhost:5000/delete-tutor/${id}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/delete-tutor/${id}`, {
             method: 'DELETE',
             headers: { "Authorization": `Bearer ${token}` }
         });
@@ -69,6 +70,7 @@ const MyTutorsPage = () => {
         }
     };
 
+    //edit logic
     const handleEditClick = (tutor) => {
         setEditingTutor(tutor);
         onOpen();

@@ -1,36 +1,29 @@
 "use client";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { authClient } from "@/lib/auth-client"; // আপনার পাথ অনুযায়ী
+import { authClient } from "@/lib/auth-client";
 const AddTutorPage = () => {
-    const { data: session } = authClient.useSession(); // সেশন থেকে ইউজার নিন
+    const { data: session } = authClient.useSession();
     const { register, handleSubmit, reset, formState: { errors } } = useForm();
 
-    // const onSubmit = async (data) => {
-    //     // নতুন ফিল্ডসহ ডাটা এখন সার্ভারে যাবে
-    //     const res = await fetch('http://localhost:5000/tutor', {
-    //         method: 'POST',
-    //         headers: { 'Content-Type': 'application/json' },
-    //         body: JSON.stringify(data)
-    //     });
+
     const onSubmit = async (data) => {
-        // ডাটার সাথে userEmail যোগ করুন
         const tutorData = {
             ...data,
-            userEmail: session?.user?.email, // এটিই সবথেকে গুরুত্বপূর্ণ
-            totalSlot: parseInt(data.totalSlot), // স্লটটি অবশ্যই নাম্বার হিসেবে পাঠাবেন
-            fee: parseInt(data.fee) // ফি-ও নাম্বার হিসেবে পাঠানো ভালো
+            userEmail: session?.user?.email,
+            totalSlot: parseInt(data.totalSlot),
+            fee: parseInt(data.fee)
         };
 
         const { data: tokenData } = await authClient.token()
-        const res = await fetch('http://localhost:5000/tutor', {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/tutor`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 authorization: `Bearer ${tokenData?.token}`
 
             },
-            body: JSON.stringify(tutorData) // নতুন অবজেক্টটি পাঠান
+            body: JSON.stringify(tutorData)
         });
 
         if (res.ok) {
